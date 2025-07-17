@@ -7,27 +7,35 @@ on:
 
 jobs:
   build-and-deploy:
+    name: Build and Deploy Flutter Web App to Firebase
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: oxmed_full_demo
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.0' # adjust if needed
+          flutter-version: '3.13.0'
 
       - name: Enable Flutter Web
         run: flutter config --enable-web
 
-      - name: Get dependencies
+      - name: Install dependencies
         run: flutter pub get
-        working-directory: oxmed_full_demo
 
       - name: Build Flutter Web
         run: flutter build web --release
-        working-directory: oxmed_full_demo
+
+      - name: Copy build to public directory
+        run: |
+          rm -rf ../public/*
+          cp -r build/web/* ../public/
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -38,6 +46,13 @@ jobs:
           projectId: oxmed-demo1
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
+
+
+
+
+
+
+
 
 
 
