@@ -7,34 +7,39 @@ on:
 
 jobs:
   build-and-deploy:
+    name: Build and Deploy Flutter Web App
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: oxmed_full_demo
+
     steps:
-      - name: 📥 Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: 🚀 Set up Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.x'
+          flutter-version: '3.22.0' # or whatever version you're using
 
-      - name: 📦 Install dependencies
-        run: |
-          cd oxmed_flutter
-          flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: 🛠️ Build Flutter web
-        run: |
-          cd oxmed_flutter
-          flutter build web
+      - name: Build Flutter web app
+        run: flutter build web
 
-      - name: 📤 Deploy to Firebase Hosting
+      - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 }}"
           channelId: live
           projectId: oxmed-demo1
+          target: default
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
+        with:
+          entryPoint: oxmed_full_demo/build/web
+
 
