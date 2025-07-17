@@ -15,29 +15,41 @@ jobs:
         working-directory: oxmed_full_demo
 
     steps:
-      - name: Checkout repo
+      - name: 📥 Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: 🛠️ Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.13.0'
 
-      - name: Enable Flutter Web
+      - name: 🖥️ Enable Flutter Web
         run: flutter config --enable-web
 
-      - name: Install dependencies
+      - name: 📦 Get Dependencies
         run: flutter pub get
 
-      - name: Build Flutter Web
+      - name: 🔍 Verify Firebase Secret
+        run: |
+          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 }}" ]; then
+            echo "❌ FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 is not set!"
+            exit 1
+          else
+            echo "✅ Firebase secret exists."
+          fi
+
+      - name: 🧪 Analyze Flutter Code
+        run: flutter analyze
+
+      - name: ⚙️ Build Flutter Web
         run: flutter build web --release
 
-      - name: Copy build to public directory
+      - name: 🗂️ Move Build to Firebase Public Directory
         run: |
           rm -rf ../public/*
           cp -r build/web/* ../public/
 
-      - name: Deploy to Firebase Hosting
+      - name: 🚀 Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
@@ -46,6 +58,15 @@ jobs:
           projectId: oxmed-demo1
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
+
+
+
+
+
+
+
+
+
 
 
 
