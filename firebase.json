@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "oxmed_full_demo/build/web",
     "ignore": [
       "firebase.json",
       "**/.*",
