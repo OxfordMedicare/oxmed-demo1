@@ -10,46 +10,41 @@ jobs:
     name: Build and Deploy Flutter Web App to Firebase
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: oxmed_full_demo
-
     steps:
-      - name: 📥 Checkout Repo
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: 🛠️ Set Up Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.13.0'
 
-      - name: 🖥️ Enable Flutter Web
+      - name: Enable Flutter Web
         run: flutter config --enable-web
 
-      - name: 📦 Get Dependencies
+      - name: Get dependencies
         run: flutter pub get
+        working-directory: oxmed_full_demo
 
-      - name: 🔍 Verify Firebase Secret
+      - name: Build Flutter Web
+        run: flutter build web --release
+        working-directory: oxmed_full_demo
+
+      - name: Copy to Firebase public directory
+        run: |
+          rm -rf public/*
+          cp -r oxmed_full_demo/build/web/* public/
+
+      - name: Verify Firebase Secret
         run: |
           if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 }}" ]; then
             echo "❌ FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 is not set!"
             exit 1
           else
-            echo "✅ Firebase secret exists."
+            echo "✅ Secret is set correctly"
           fi
 
-      - name: 🧪 Analyze Flutter Code
-        run: flutter analyze
-
-      - name: ⚙️ Build Flutter Web
-        run: flutter build web --release
-
-      - name: 🗂️ Move Build to Firebase Public Directory
-        run: |
-          rm -rf ../public/*
-          cp -r build/web/* ../public/
-
-      - name: 🚀 Deploy to Firebase
+      - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
@@ -58,6 +53,17 @@ jobs:
           projectId: oxmed-demo1
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
+
+
+
+
+
+
+
+
+
+
+
 
 
 
