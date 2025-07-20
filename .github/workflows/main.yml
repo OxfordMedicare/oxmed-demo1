@@ -17,7 +17,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.0'
+          flutter-version: '3.13.9'  # adjust this if needed
 
       - name: Enable Flutter Web
         run: flutter config --enable-web
@@ -30,6 +30,8 @@ jobs:
           if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 }}" ]; then
             echo "❌ FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 is not set!"
             exit 1
+          else
+            echo "✅ Firebase secret is set."
           fi
 
       - name: Get dependencies
