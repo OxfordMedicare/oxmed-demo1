@@ -7,25 +7,51 @@ on:
 
 jobs:
   build-and-deploy:
+    name: Build and Deploy Flutter Web App to Firebase
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.9'  # or whatever version you're using
+          flutter-version: '3.13.0'
 
-      - name: Install Dependencies
+      - name: Enable Flutter Web
+        run: flutter config --enable-web
+
+      - name: Print Flutter Version
+        run: flutter --version
+
+      - name: Check Firebase Secret
+        run: |
+          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 }}" ]; then
+            echo "❌ FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 is not set!"
+            exit 1
+          fi
+
+      - name: Get dependencies
         run: flutter pub get
+        working-directory: oxmed_full_demo
 
-      - name: Build Flutter Web
-        run: flutter build web
+      - name: Build Flutter Web (verbose)
+        run: flutter build web --release --verbose
+        working-directory: oxmed_full_demo
 
-      - name: Deploy to Firebase
+      - name: Copy to Firebase public directory
+        run: |
+          rm -rf public/*
+          cp -r oxmed_full_demo/build/web/* public/
+
+      - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_OXMED_DEMO1 }}"
           channelId: live
+          projectId: oxmed-demo1
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels
+
